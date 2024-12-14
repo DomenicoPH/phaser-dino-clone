@@ -2,6 +2,7 @@
 import { SpriteWithDynamicBody } from "../types";
 import { Player } from '../entities/Player';
 import { GameScene } from '../scenes/GameScene';
+import { PRELOAD_CONFIG } from "..";
 
 class PlayScene extends GameScene{
 
@@ -89,12 +90,30 @@ class PlayScene extends GameScene{
 
     spawnObstacle(){
         // Generar obstáculo
-        let obstacleNumber = Math.floor(Math.random() * 6) + 1;
+        const obstacleCount = PRELOAD_CONFIG.cactusesCount + PRELOAD_CONFIG.birdsCount;
+        const obstacleNumber = Math.floor(Math.random() * obstacleCount ) + 1;
+
         let distance = Phaser.Math.Between(600, 900);
-        const obstacle = this.obstacles
+
+        if(PRELOAD_CONFIG.cactusesCount > 6){
+
+            const enemyPossibleHeight = [20, 70];
+            const enemyHeight = enemyPossibleHeight[Math.floor(Math.random() * 2)];
+
+            this.obstacles
+            .create(distance, this.gameHeight - enemyHeight, `enemy-bird`)
+            .setOrigin(0, 1)
+            .setImmovable();
+
+        } else {
+
+            this.obstacles
             .create(distance, this.gameHeight, `obstacle-${obstacleNumber}`)
             .setOrigin(0, 1)
             .setImmovable();
+
+        }
+
     };
 
     handleGameStart(){
