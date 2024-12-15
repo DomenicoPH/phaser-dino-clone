@@ -9,6 +9,7 @@ class PlayScene extends GameScene{
     player: Player;
     ground: Phaser.GameObjects.TileSprite;
     obstacles: Phaser.Physics.Arcade.Group;
+    clouds: Phaser.GameObjects.Group;
     startTrigger: SpriteWithDynamicBody;
 
     gameOverContainer: Phaser.GameObjects.Container;
@@ -45,13 +46,18 @@ class PlayScene extends GameScene{
             this.spawnTime = 0;
         }
 
-        Phaser.Actions.IncX(this.obstacles.getChildren(), -this.gameSpeed);
-
-        console.log(this.obstacles.getChildren().length);
+        Phaser.Actions.IncX(this.obstacles.getChildren(), -this.gameSpeed); // Desplazamiento de los obstáculos hacia la izquierda
+        Phaser.Actions.IncX(this.clouds.getChildren(), -0.5);               // Desplazamiento de las nubes hacia la izquierda
 
         this.obstacles.getChildren().forEach((obstacle: SpriteWithDynamicBody) => {
-            if(obstacle.getBounds().right < 0){
-                this.obstacles.remove(obstacle);
+            if(obstacle.getBounds().right < 0){     // Si el borde derecho de obstáculo ha pasado el borde izquierdo del mundo...
+                this.obstacles.remove(obstacle);    // Borra el obstáculo
+            }
+        });
+
+        this.clouds.getChildren().forEach((cloud: SpriteWithDynamicBody) => {
+            if(cloud.getBounds().right < 0){        // Si el borde derecho de la nube ha pasado el borde izquierdo del mundo...
+                cloud.x = this.gameWidth + 30       // Coloca el obstáculo
             }
         });
         
@@ -68,8 +74,17 @@ class PlayScene extends GameScene{
 
     createEnviroment(){
         // Crea el Mundo
-        this.ground = this.add.tileSprite(0, this.gameHeight, 88, 26, 'ground')
-        .setOrigin(0,1)
+        this.ground = this.add
+            .tileSprite(0, this.gameHeight, 88, 26, 'ground')
+            .setOrigin(0,1)
+
+        this.clouds = this.add.group();
+        this.clouds = this.clouds.addMultiple([
+            this.add.image(this.gameWidth / 2, 170, 'cloud'),
+            this.add.image(this.gameWidth - 80, 80, 'cloud'),
+            this.add.image(this.gameWidth / 1.3, 100, 'cloud'),
+        ])
+        this.clouds.setAlpha(0);
     };
 
     createObstacles(){
@@ -149,6 +164,7 @@ class PlayScene extends GameScene{
                         rollOutEvent.remove();
                         this.ground.width = this.gameWidth;
                         this.player.setVelocityX(0)
+                        this.clouds.setAlpha(1)
                         this.isGameRunning = true;
                     }
                 }
@@ -162,6 +178,8 @@ class PlayScene extends GameScene{
         this.physics.add.collider(this.obstacles, this.player, () => {
             this.isGameRunning = false;
             this.physics.pause();
+            this.anims.pauseAll();
+
             this.player.die();
             this.gameOverContainer.setAlpha(1)
 

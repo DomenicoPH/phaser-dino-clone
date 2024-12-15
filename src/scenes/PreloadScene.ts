@@ -9,6 +9,7 @@ class PreloadScene extends Phaser.Scene{
     preload(){
         // Assets
         this.load.image('ground','assets/ground.png');
+        this.load.image('cloud', 'assets/cloud.png');
         this.load.image('dino-idle','assets/dino-idle-2.png');
         this.load.image('dino-hurt', 'assets/dino-hurt.png');
         this.load.spritesheet('dino-run', 'assets/dino-run.png', {

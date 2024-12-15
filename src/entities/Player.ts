@@ -26,6 +26,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             .setOffset(20, 0)
             .setGravityY(5000)
             .setCollideWorldBounds(true)
+            .setDepth(1);
+            
         this.registerAnimations();
     }
  
