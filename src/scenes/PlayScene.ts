@@ -12,13 +12,18 @@ class PlayScene extends GameScene{
     clouds: Phaser.GameObjects.Group;
     startTrigger: SpriteWithDynamicBody;
 
+    scoreText: Phaser.GameObjects.Text;
     gameOverContainer: Phaser.GameObjects.Container;
     gameOverText: Phaser.GameObjects.Image;
     restartText: Phaser.GameObjects.Image;
 
+    score: number = 0;
+    scoreInterval: number = 100;    // El score incrementará en 1 cada 100ms
+    scoreDeltaTime: number = 0;
+
     spawnInterval: number = 1500;
     spawnTime: number = 0;
-    gameSpeed: number = 8;  // Velocidad horizontal de los obstáculos
+    gameSpeed: number = 10;  // Velocidad horizontal de los obstáculos
 
     constructor(){
         super('PlayScene');
@@ -33,6 +38,7 @@ class PlayScene extends GameScene{
         this.handleObstacleCollisions();
         this.handleGameRestart();
         this.createAnimations();
+        this.createScore();
 
     };
 
@@ -46,8 +52,21 @@ class PlayScene extends GameScene{
             this.spawnTime = 0;
         }
 
+        this.scoreDeltaTime += delta;
+        if(this.scoreDeltaTime >= this.scoreInterval){
+            this.score++;
+            console.log(this.score)
+            this.scoreDeltaTime = 0;
+        }
+
         Phaser.Actions.IncX(this.obstacles.getChildren(), -this.gameSpeed); // Desplazamiento de los obstáculos hacia la izquierda
         Phaser.Actions.IncX(this.clouds.getChildren(), -0.5);               // Desplazamiento de las nubes hacia la izquierda
+
+        const score = Array.from(String(this.score), Number);
+        for(let i=0; i < 5 - String(this.score).length; i++){
+            score.unshift(0);
+        }
+        this.scoreText.setText(score.join(''));
 
         this.obstacles.getChildren().forEach((obstacle: SpriteWithDynamicBody) => {
             if(obstacle.getBounds().right < 0){     // Si el borde derecho de obstáculo ha pasado el borde izquierdo del mundo...
@@ -112,6 +131,17 @@ class PlayScene extends GameScene{
         })
     };
 
+    createScore(){
+        this.scoreText = this.add.text(this.gameWidth, 0, "00000", {
+            fontSize: 30,
+            fontFamily: 'Arial',
+            color: '#535353',
+            resolution: 5,
+        })
+        .setOrigin(1, 0)
+        .setAlpha(0);
+    }
+
     spawnObstacle(){
         // Generar obstáculo
         const obstacleCount = PRELOAD_CONFIG.cactusesCount + PRELOAD_CONFIG.birdsCount;
@@ -163,8 +193,9 @@ class PlayScene extends GameScene{
                     if(this.ground.width >= this.gameWidth){
                         rollOutEvent.remove();
                         this.ground.width = this.gameWidth;
-                        this.player.setVelocityX(0)
-                        this.clouds.setAlpha(1)
+                        this.player.setVelocityX(0);
+                        this.clouds.setAlpha(1);
+                        this.scoreText.setAlpha(1);
                         this.isGameRunning = true;
                     }
                 }
@@ -184,6 +215,8 @@ class PlayScene extends GameScene{
             this.gameOverContainer.setAlpha(1)
 
             this.spawnTime = 0;
+            this.score = 0;
+            this.scoreDeltaTime = 0;
             this.gameSpeed = this.gameSpeed;
         });
     };
