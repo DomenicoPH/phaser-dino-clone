@@ -62,11 +62,13 @@ class PlayScene extends GameScene{
         Phaser.Actions.IncX(this.obstacles.getChildren(), -this.gameSpeed); // Desplazamiento de los obstáculos hacia la izquierda
         Phaser.Actions.IncX(this.clouds.getChildren(), -0.5);               // Desplazamiento de las nubes hacia la izquierda
 
+        /* Esto es muy ingenioso... */
         const score = Array.from(String(this.score), Number);
         for(let i=0; i < 5 - String(this.score).length; i++){
             score.unshift(0);
         }
         this.scoreText.setText(score.join(''));
+        /* Esto es muy ingenioso... */
 
         this.obstacles.getChildren().forEach((obstacle: SpriteWithDynamicBody) => {
             if(obstacle.getBounds().right < 0){     // Si el borde derecho de obstáculo ha pasado el borde izquierdo del mundo...
