@@ -24,6 +24,7 @@ class PlayScene extends GameScene{
     spawnInterval: number = 1500;
     spawnTime: number = 0;
     gameSpeed: number = 10;  // Velocidad horizontal de los obstáculos
+    gameSpeedModifier: number = 1;
 
     constructor(){
         super('PlayScene');
@@ -44,8 +45,9 @@ class PlayScene extends GameScene{
 
     update(time: number, delta: number): void {
 
-        if(!this.isGameRunning){ return }
+        if(!this.isGameRunning){ return }   // Si el juego no está corriendo (isGameRunning = false) se detiene aquí.
 
+        // Si el juego está corriendo (isGameRunning = true) ejecuta lo siguiente:
         this.spawnTime += delta;
         if(this.spawnTime >= this.spawnInterval){
             this.spawnObstacle();
@@ -55,12 +57,16 @@ class PlayScene extends GameScene{
         this.scoreDeltaTime += delta;
         if(this.scoreDeltaTime >= this.scoreInterval){
             this.score++;
-            console.log(this.score)
             this.scoreDeltaTime = 0;
+
+            // Incremento de la velocidad en 0.1 cada 100 puntos
+            if(this.score % 100 === 0){
+                this.gameSpeedModifier += 0.1
+            }
         }
 
-        Phaser.Actions.IncX(this.obstacles.getChildren(), -this.gameSpeed); // Desplazamiento de los obstáculos hacia la izquierda
-        Phaser.Actions.IncX(this.clouds.getChildren(), -0.5);               // Desplazamiento de las nubes hacia la izquierda
+        Phaser.Actions.IncX(this.obstacles.getChildren(), -this.gameSpeed * this.gameSpeedModifier);    // Desplazamiento de los obstáculos hacia la izquierda
+        Phaser.Actions.IncX(this.clouds.getChildren(), -0.5);                                           // Desplazamiento de las nubes hacia la izquierda
 
         /* Esto es muy ingenioso... */
         const score = Array.from(String(this.score), Number);
@@ -82,7 +88,7 @@ class PlayScene extends GameScene{
             }
         });
         
-        this.ground.tilePositionX += this.gameSpeed;
+        this.ground.tilePositionX += (this.gameSpeed * this.gameSpeedModifier);
 
     }
 
@@ -219,7 +225,7 @@ class PlayScene extends GameScene{
             this.spawnTime = 0;
             this.score = 0;
             this.scoreDeltaTime = 0;
-            this.gameSpeed = this.gameSpeed;
+            this.gameSpeedModifier = 1;
         });
     };
 
